@@ -155,17 +155,3 @@ Push (git push origin feature/nova-feature)
 Abra um Pull Request
 
 Desenvolvido com Flutter e muita paixão por Pokémon ⚡🐾
-
-text
-
-## O que estava errado antes:
-
-Os **blocos de código** (como o YAML e o JSON) não estavam fechados corretamente, o que fez o restante do texto ser "engolido" como se fizesse parte do código.
-
-## Agora está correto:
-
-- ✅ Código YAML do `pubspec.yaml` isolado
-- ✅ JSON do Firestore isolado
-- ✅ Tabelas formatadas corretamente
-- ✅ Seções bem separadas
-- ✅ Estrutura limpa e legível
