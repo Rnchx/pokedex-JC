@@ -3,102 +3,37 @@
 [![Flutter](https://img.shields.io/badge/Flutter-3.0+-blue.svg)](https://flutter.dev)
 [![Firebase](https://img.shields.io/badge/Firebase-Cloud%20Firestore-orange.svg)](https://firebase.google.com)
 [![Dart](https://img.shields.io/badge/Dart-3.0+-teal.svg)](https://dart.dev)
-[![Plataforma](https://img.shields.io/badge/Plataforma-Web%20|%20Mobile-brightgreen.svg)]()
 
 ## 📱 Sobre o Projeto
 
-A **Pokédex JC** é um aplicativo mobile/web desenvolvido em **Flutter** que permite gerenciar uma coleção personalizada de Pokémon. Diferente de uma Pokédex tradicional, este aplicativo permite que o usuário **adicione, edite e remova** seus próprios Pokémon, criando uma experiência de gerenciamento de equipe única.
+A **Pokédex JC** é um aplicativo mobile/web desenvolvido em **Flutter** que permite gerenciar uma coleção personalizada de Pokémon. O aplicativo permite adicionar, visualizar e remover Pokémon com sincronização em tempo real com o Firebase.
 
-### 🎯 Funcionalidades Principais
+## 🎯 Funcionalidades
 
-- ✅ **Listagem de Pokémon** - Visualize todos os Pokémon cadastrados
-- ✅ **Adicionar Pokémon** - Cadastre novos Pokémon com nome, nível, tipo e moves
-- ✅ **Detalhes do Pokémon** - Visualize informações completas de cada Pokémon
-- ✅ **Remover Pokémon** - Delete Pokémon da sua coleção
-- ✅ **Sincronização em Tempo Real** - Dados sincronizados com o Firebase Cloud Firestore
-- ✅ **Design Temático** - Interface inspirada no universo Pokémon
+- ✅ Listagem de Pokémon cadastrados
+- ✅ Adicionar novos Pokémon (nome, nível, tipo, moves)
+- ✅ Visualizar detalhes de cada Pokémon
+- ✅ Remover Pokémon da coleção
+- ✅ Sincronização em tempo real com Firebase
+- ✅ Imagens oficiais via PokéAPI
 
-## 🏗️ Arquitetura do Projeto
+## 🏗️ Estrutura do Projeto
 📁 lib/
-├── main.dart # Ponto de entrada e configuração do app
-├── home_screen.dart # Tela principal (listagem de Pokémon)
-├── pokemon_screen.dart # Tela de detalhes do Pokémon
-├── pokemon.dart # Modelo de dados Pokémon
-└── firebase_options.dart # Configuração do Firebase
+├── main.dart # Ponto de entrada
+├── home_screen.dart # Tela principal (listagem)
+├── pokemon_screen.dart # Tela de detalhes
+├── pokemon.dart # Modelo Pokémon
+└── firebase_options.dart # Configuração Firebase
 
 text
 
-## 🚀 Tecnologias Utilizadas
-
-| Tecnologia | Finalidade |
-|------------|------------|
-| **Flutter** | Framework para desenvolvimento multiplataforma |
-| **Dart** | Linguagem de programação |
-| **Firebase Cloud Firestore** | Banco de dados em tempo real |
-| **Firebase Core** | Inicialização e configuração do Firebase |
-| **PokéAPI (Sprite)** | Imagens oficiais dos Pokémon |
-
-## 📦 Estrutura de Dados
-
-### Pokémon
-
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `name` | String | Nome do Pokémon |
-| `spriteId` | int | ID para buscar a imagem oficial |
-| `typeIds` | List<int> | IDs dos tipos (ex: 10 = Fire) |
-| `level` | int | Nível do Pokémon |
-| `moves` | List<String> | Lista de golpes/movimentos |
-
-### Tipos de Pokémon Suportados
-
-| Tipo | ID | Cor | Emoji |
-|------|-----|-----|-------|
-| Normal | 1 | #A8A77A | ⚪ |
-| Fire | 10 | #EE8130 | 🔥 |
-| Water | 11 | #6390F0 | 💧 |
-| Grass | 12 | #7AC74C | 🌿 |
-| Electric | 13 | #F7D02C | ⚡ |
-| Fairy | 18 | #D685AD | ✨ |
-
-## 🖼️ Funcionalidades em Detalhe
-
-### 1. Tela Principal (HomeScreen)
-
-- Lista todos os Pokémon cadastrados
-- Cada Pokémon exibe:
-  - Imagem oficial (via PokéAPI)
-  - Nome
-  - Nível
-  - Tipos (com cores e emojis)
-- Botão para adicionar novo Pokémon
-- Botão para deletar Pokémon
-- Sincronização em tempo real com Firebase
-
-### 2. Adicionar Pokémon
-
-Formulário com campos:
-- **Nome** - Nome do Pokémon
-- **Sprite ID** - ID para buscar a imagem oficial
-- **Level** - Nível (1-100)
-- **Tipo** - Seleção do tipo principal
-- **Moves** - Movimentos separados por vírgula
-
-### 3. Tela de Detalhes (PokemonScreen)
-
-- Exibe informações completas do Pokémon
-- Visualização ampliada da imagem
-- Lista de movimentos/golpes
-- (Em desenvolvimento - estrutura preparada)
-
-## 🔧 Como Executar o Projeto
+## 🚀 Como Executar
 
 ### Pré-requisitos
 
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (versão 3.0+)
-- [Dart SDK](https://dart.dev/get-dart)
-- Dispositivo físico ou emulador (Android/iOS)
-- Navegador para testar versão web
+- Flutter SDK (3.0+)
+- Dart SDK
+- Dispositivo/emulador ou navegador
 
 ### Passo a Passo
 
@@ -115,25 +50,25 @@ flutter pub get
 # 4. Execute o projeto
 flutter run
 
-# Para rodar especificamente na web:
+# Para rodar na web:
 flutter run -d chrome
 
 # Para rodar no Android:
 flutter run -d android
 Configuração do Firebase
-O projeto já está configurado com o Firebase para a plataforma Web. Para rodar em dispositivos móveis:
+O projeto já está configurado para a Web. Para dispositivos móveis:
 
 Crie um projeto no Firebase Console
 
 Adicione um aplicativo Android/iOS
 
-Baixe o arquivo de configuração (google-services.json ou GoogleService-Info.plist)
+Baixe o arquivo de configuração
 
-Coloque o arquivo na pasta android/app/ ou ios/Runner/
+Coloque na pasta android/app/ ou ios/Runner/
 
-Execute flutterfire configure para gerar novas configurações
+Execute flutterfire configure
 
-📦 Dependências Principais
+📦 Dependências
 yaml
 dependencies:
   flutter:
@@ -143,16 +78,16 @@ dependencies:
 🎨 Design System
 Cores
 Cor	Código	Uso
-Azul Escuro	#15202E	AppBar, botões principais
-Azul Médio	#1E3957	Detalhes, elementos secundários
-Azul Claro	#87A9C4	Background principal
+Azul Escuro	#15202E	AppBar, botões
+Azul Médio	#1E3957	Detalhes
+Azul Claro	#87A9C4	Background
 Branco	#FFFFFF	Cards, formulários
 Temas
-Material 3 - Design moderno e responsivo
+Material 3
 
-Cards com sombra - Profundidade e hierarquia visual
+Cards com sombra
 
-Gradientes - Fundos com degradê para maior imersão
+Gradientes
 
 🗄️ Banco de Dados (Firestore)
 Estrutura da Coleção pokemons
@@ -164,8 +99,17 @@ json
   "level": 36,
   "moves": ["Flamethrower", "Fly", "Dragon Claw", "Earthquake"]
 }
+Tipos de Pokémon
+Tipo	ID	Cor	Emoji
+Normal	1	#A8A77A	⚪
+Fire	10	#EE8130	🔥
+Water	11	#6390F0	💧
+Grass	12	#7AC74C	🌿
+Electric	13	#F7D02C	⚡
+Fairy	18	#D685AD	✨
 📸 Capturas de Tela
-Adicione aqui imagens do aplicativo rodando
+<div align="center"> <img src="screenshots/home.jpg" width="250" alt="Tela Principal"> <img src="screenshots/add.jpg" width="250" alt="Adicionar Pokémon"> <img src="screenshots/details.jpg" width="250" alt="Detalhes"> </div>
+Adicione suas capturas de tela na pasta screenshots/
 
 🔮 Melhorias Futuras
 Editar Pokémon existentes
@@ -185,30 +129,28 @@ Autenticação de usuários
 👨‍💻 Desenvolvedor
 Nome	Papel
 João Pedro (Rnchx)	Desenvolvedor Full Stack
-📚 O que Aprendi
-Com este projeto, foi possível consolidar conhecimentos em:
-
+📚 Aprendizados
 Flutter - Widgets, navegação, estados
 
-Firebase - Cloud Firestore, operações CRUD em tempo real
+Firebase - Cloud Firestore, CRUD em tempo real
 
-Integração de APIs - PokéAPI para sprites oficiais
+Integração de APIs - PokéAPI
 
-Design System - Temas, cores, Material 3
+Design System - Temas, Material 3
 
-Arquitetura - Separação de concerns (models, screens, services)
+Arquitetura - Separação de concerns
 
 📄 Licença
-Este projeto foi desenvolvido para fins educacionais e de portfólio.
+Projeto desenvolvido para fins educacionais e de portfólio.
 
 ⭐ Como Contribuir
-Faça um Fork do projeto
+Fork o projeto
 
 Crie uma branch (git checkout -b feature/nova-feature)
 
-Commit suas mudanças (git commit -m 'Adiciona nova feature')
+Commit (git commit -m 'Adiciona nova feature')
 
-Push para a branch (git push origin feature/nova-feature)
+Push (git push origin feature/nova-feature)
 
 Abra um Pull Request
 
@@ -216,23 +158,14 @@ Desenvolvido com Flutter e muita paixão por Pokémon ⚡🐾
 
 text
 
-## 📝 Como adicionar no GitHub:
+## O que estava errado antes:
 
-1. Acesse seu repositório: `https://github.com/Rnchx/pokedex-JC`
-2. Clique em **"Add file"** > **"Create new file"**
-3. Nomeie como `README.md`
-4. Copie e cole o conteúdo acima
-5. Role para baixo e clique em **"Commit changes"**
+Os **blocos de código** (como o YAML e o JSON) não estavam fechados corretamente, o que fez o restante do texto ser "engolido" como se fizesse parte do código.
 
-## 🎨 Dica extra:
+## Agora está correto:
 
-Se quiser, pode adicionar **capturas de tela** do aplicativo. Crie uma pasta `screenshots/` no repositório e adicione as imagens. Depois no README, descomente a seção:
-
-```markdown
-## 📸 Capturas de Tela
-
-<div align="center">
-  <img src="screenshots/home.jpg" width="250" alt="Tela Principal">
-  <img src="screenshots/add.jpg" width="250" alt="Adicionar Pokémon">
-  <img src="screenshots/details.jpg" width="250" alt="Detalhes">
-</div>
+- ✅ Código YAML do `pubspec.yaml` isolado
+- ✅ JSON do Firestore isolado
+- ✅ Tabelas formatadas corretamente
+- ✅ Seções bem separadas
+- ✅ Estrutura limpa e legível
