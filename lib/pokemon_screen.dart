@@ -7,11 +7,7 @@ class PokemonScreen extends StatefulWidget {
   final Pokemon pokemon;
   final String docId;
 
-  const PokemonScreen({
-    super.key,
-    required this.pokemon,
-    required this.docId,
-  });
+  const PokemonScreen({super.key, required this.pokemon, required this.docId});
 
   @override
   State<PokemonScreen> createState() => _PokemonScreenState();
@@ -197,8 +193,8 @@ class _PokemonScreenState extends State<PokemonScreen>
                           tag: widget.pokemon.spriteUrl,
                           child: Image.network(
                             widget.pokemon.spriteUrl,
-                            width: 160,
-                            height: 160,
+                            width: 200,
+                            height: 200,
                             fit: BoxFit.contain,
                           ),
                         ),
@@ -233,41 +229,45 @@ class _PokemonScreenState extends State<PokemonScreen>
                         // Tipos do Pokémon com EMOJIS
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          children: widget.pokemon.tipoNomes.map((tipo) {
+                          children: widget.pokemon.types.map((tipo) {
                             String emoji;
                             Color iconColor;
-                            
+
                             // Tipos em PORTUGUÊS
                             switch (tipo) {
-                              case 'Fire':
+                              case 'fire':
                                 emoji = '🔥';
                                 iconColor = const Color(0xFFEE8130);
                                 break;
-                              case 'Water':
+                              case 'water':
                                 emoji = '💧';
                                 iconColor = const Color(0xFF6390F0);
                                 break;
-                              case 'Grass':
+                              case 'grass':
                                 emoji = '🌿';
                                 iconColor = const Color(0xFF7AC74C);
                                 break;
-                              case 'Electric':
+                              case 'electric':
                                 emoji = '⚡';
                                 iconColor = const Color(0xFFF7D02C);
                                 break;
-                              case 'Fairy':
+                              case 'fairy':
                                 emoji = '✨';
                                 iconColor = const Color(0xFFD685AD);
                                 break;
-                              case 'Normal':
+                              case 'normal':
                                 emoji = '⚪';
+                                iconColor = const Color(0xFFA8A77A);
+                                break;
+                              case 'poison':
+                                emoji = '💥';
                                 iconColor = const Color(0xFFA8A77A);
                                 break;
                               default:
                                 emoji = '❓';
                                 iconColor = const Color(0xFFA8A77A);
                             }
-                            
+
                             return Container(
                               margin: const EdgeInsets.symmetric(horizontal: 4),
                               padding: const EdgeInsets.symmetric(
@@ -373,68 +373,6 @@ class _PokemonScreenState extends State<PokemonScreen>
               ),
 
               const SizedBox(height: 24),
-
-              // Seção de golpes
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF15202E).withOpacity(0.1),
-                      spreadRadius: 2,
-                      blurRadius: 8,
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.sports_mma, size: 22, color: Color(0xFF15202E)),
-                        SizedBox(width: 10),
-                        Text(
-                          'Golpes',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF15202E),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    ...widget.pokemon.moves.map(
-                      (move) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 10,
-                              height: 10,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFF15202E),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Text(
-                              move,
-                              style: const TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: Color(0xFF1E3957),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),

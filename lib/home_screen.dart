@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'pokemon.dart';
 import 'pokemon_screen.dart';
 import 'new_pokemon_screen.dart';
+import 'trainer_profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,19 +20,19 @@ class _HomeScreenState extends State<HomeScreen> {
     {'id': 10, 'nome': 'Fire', 'cor': const Color(0xFFEE8130), 'emoji': '🔥'},
     {'id': 11, 'nome': 'Water', 'cor': const Color(0xFF6390F0), 'emoji': '💧'},
     {'id': 12, 'nome': 'Grass', 'cor': const Color(0xFF7AC74C), 'emoji': '🌿'},
-    {'id': 13, 'nome': 'Electric', 'cor': const Color(0xFFF7D02C), 'emoji': '⚡'},
+    {
+      'id': 13,
+      'nome': 'Electric',
+      'cor': const Color(0xFFF7D02C),
+      'emoji': '⚡',
+    },
     {'id': 18, 'nome': 'Fairy', 'cor': const Color(0xFFD685AD), 'emoji': '✨'},
   ];
 
-  void _navegarParaNovoPokemon({Map<String, dynamic>? pokemonToEdit, String? docId}) {
+  void _navegarParaNovoPokemon() {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => NewPokemonScreen(
-          pokemonToEdit: pokemonToEdit,
-          docId: docId,
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => const NewPokemonScreen()),
     ).then((result) {
       if (result == true) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -88,8 +89,23 @@ class _HomeScreenState extends State<HomeScreen> {
           'Pokédex JC',
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
         ),
+
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TrainerProfileScreen()),
+              ).then((_) {
+                setState(() {});
+              });
+            },
+          ),
+        ],
+
         elevation: 0,
-        // Ícone de informações REMOVIDO
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _navegarParaNovoPokemon(),
@@ -109,7 +125,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Icon(Icons.error_outline, size: 64, color: Colors.white70),
                     const SizedBox(height: 16),
-                    Text('Erro: ${snapshot.error}', style: const TextStyle(color: Colors.white)),
+                    Text(
+                      'Erro: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
               );
@@ -134,7 +153,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     const SizedBox(height: 16),
                     const Text(
                       'Nenhum Pokémon cadastrado',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -146,219 +168,323 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             }
 
-            return ListView.builder(
-              itemCount: docs.length,
-              itemBuilder: (context, index) {
-                final data = docs[index].data();
-                final docId = docs[index].id;
+            return Column(
+              children: [
+                FutureBuilder<DocumentSnapshot>(
+                  future: FirebaseFirestore.instance
+                      .collection('config')
+                      .doc('treinador')
+                      .get(),
 
-                final pokemon = Pokemon(
-                  name: data['name'],
-                  spriteId: data['spriteId'],
-                  typeIds: List<int>.from(data['typeIds']),
-                  level: data['level'],
-                  moves: List<String>.from(data['moves']),
-                );
+                  builder: (context, profileSnapshot) {
+                    if (!profileSnapshot.hasData ||
+                        !profileSnapshot.data!.exists) {
+                      return const SizedBox();
+                    }
 
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PokemonScreen(
-                              pokemon: pokemon,
-                              docId: docId,
+                    final data =
+                        profileSnapshot.data!.data() as Map<String, dynamic>;
+
+                    final nome = data['name'] ?? 'Treinador';
+                    final avatar = data['avatarIndex'] ?? 0;
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.all(16),
+
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Colors.white, Color(0xFF87A9C4)],
+                        ),
+
+                        borderRadius: BorderRadius.circular(24),
+
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 8,
+                          ),
+                        ],
+                      ),
+
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 35,
+                            backgroundColor: Colors.white,
+
+                            child: Image.asset(
+                              'assets/trainers/trainer_${avatar + 1}.png',
                             ),
                           ),
-                        );
-                      },
-                      borderRadius: BorderRadius.circular(24),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(0xFF15202E).withOpacity(0.2),
-                              spreadRadius: 2,
-                              blurRadius: 8,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            // Imagem do Pokémon - AGORA COM AZUL MARINHO (#15202E)
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF15202E), // VOLTOU PARA AZUL MARINHO
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(24),
-                                  bottomLeft: Radius.circular(24),
-                                ),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(24),
-                                  bottomLeft: Radius.circular(24),
-                                ),
-                                child: Image.network(
-                                  pokemon.spriteUrl,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return const Center(
-                                      child: Icon(Icons.catching_pokemon, size: 40, color: Colors.white70),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                            // Informações
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      pokemon.name,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF15202E),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF15202E).withOpacity(0.1),
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                          child: Text(
-                                            'Nível ${pokemon.level}',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: const Color(0xFF15202E),
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        ...pokemon.tipoNomes.map((tipo) {
-                                          String emoji = '';
-                                          Color tipoCor = const Color(0xFFA8A77A);
-                                          for (var t in tipos) {
-                                            if (t['nome'] == tipo) {
-                                              emoji = t['emoji'];
-                                              tipoCor = t['cor'];
-                                              break;
-                                            }
-                                          }
-                                          return Container(
-                                            margin: const EdgeInsets.only(right: 4),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 6,
-                                              vertical: 2,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: tipoCor.withOpacity(0.2),
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            child: Row(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                Text(
-                                                  emoji,
-                                                  style: const TextStyle(fontSize: 10),
-                                                ),
-                                                const SizedBox(width: 2),
-                                                Text(
-                                                  tipo,
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: tipoCor,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            // Menu de opções (Editar e Deletar)
-                            PopupMenuButton<String>(
-                              icon: Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF15202E).withOpacity(0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(Icons.more_vert, color: Color(0xFF15202E), size: 20),
-                              ),
-                              onSelected: (value) {
-                                if (value == 'edit') {
-                                  final Map<String, dynamic> pokemonData = {};
-                                  (data as Map).forEach((key, value) {
-                                    pokemonData[key.toString()] = value;
-                                  });
-                                  
-                                  _navegarParaNovoPokemon(
-                                    pokemonToEdit: pokemonData,
-                                    docId: docId,
-                                  );
-                                } else if (value == 'delete') {
-                                  _deletarPokemon(docId, pokemon.name);
-                                }
-                              },
-                              itemBuilder: (context) => [
-                                const PopupMenuItem(
-                                  value: 'edit',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.edit, size: 20, color: Color(0xFF1E3957)),
-                                      SizedBox(width: 12),
-                                      Text('Editar'),
-                                    ],
+
+                          const SizedBox(width: 16),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+
+                              children: [
+                                const Text(
+                                  'Treinador',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey,
                                   ),
                                 ),
-                                const PopupMenuItem(
-                                  value: 'delete',
-                                  child: Row(
-                                    children: [
-                                      Icon(Icons.delete_outline, size: 20, color: Colors.red),
-                                      SizedBox(width: 12),
-                                      Text('Excluir', style: TextStyle(color: Colors.red)),
-                                    ],
+
+                                Text(
+                                  nome,
+                                  style: const TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF15202E),
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(width: 8),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ),
+                    );
+                  },
+                ),
+
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: docs.length,
+                    itemBuilder: (context, index) {
+                      final data = docs[index].data();
+                      final docId = docs[index].id;
+
+                      final pokemon = Pokemon(
+                        name: data['name'],
+                        spriteUrl: data['spriteUrl'],
+                        types: List<String>.from(data['types']),
+                        level: data['level'],
+                      );
+
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => PokemonScreen(
+                                    pokemon: pokemon,
+                                    docId: docId,
+                                  ),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(24),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF15202E,
+                                    ).withOpacity(0.2),
+                                    spreadRadius: 2,
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 100,
+                                    height: 100,
+                                    decoration: BoxDecoration(
+                                      color: const Color(
+                                        0xFF15202E,
+                                      ), // VOLTOU PARA AZUL MARINHO
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(24),
+                                        bottomLeft: Radius.circular(24),
+                                      ),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: const BorderRadius.only(
+                                        topLeft: Radius.circular(24),
+                                        bottomLeft: Radius.circular(24),
+                                      ),
+                                      child: Image.network(
+                                        pokemon.spriteUrl,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                              return const Center(
+                                                child: Icon(
+                                                  Icons.catching_pokemon,
+                                                  size: 40,
+                                                  color: Colors.white70,
+                                                ),
+                                              );
+                                            },
+                                      ),
+                                    ),
+                                  ),
+                                  // Informações
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            pokemon.name,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFF15202E),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 8,
+                                                      vertical: 2,
+                                                    ),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFF15202E,
+                                                  ).withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: Text(
+                                                  'Nível ${pokemon.level}',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: const Color(
+                                                      0xFF15202E,
+                                                    ),
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              ...pokemon.types.map((tipo) {
+                                                String emoji = '';
+                                                Color tipoCor = const Color(
+                                                  0xFFA8A77A,
+                                                );
+                                                for (var t in tipos) {
+                                                  if (t['nome'] == tipo) {
+                                                    emoji = t['emoji'];
+                                                    tipoCor = t['cor'];
+                                                    break;
+                                                  }
+                                                }
+                                                return Container(
+                                                  margin: const EdgeInsets.only(
+                                                    right: 4,
+                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 6,
+                                                        vertical: 2,
+                                                      ),
+                                                  decoration: BoxDecoration(
+                                                    color: tipoCor.withOpacity(
+                                                      0.2,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8,
+                                                        ),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Text(
+                                                        emoji,
+                                                        style: const TextStyle(
+                                                          fontSize: 10,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 2),
+                                                      Text(
+                                                        tipo,
+                                                        style: TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: tipoCor,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              }),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  // Menu de opções (Editar e Deletar)
+                                  PopupMenuButton<String>(
+                                    icon: Container(
+                                      padding: const EdgeInsets.all(8),
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xFF15202E,
+                                        ).withOpacity(0.1),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.more_vert,
+                                        color: Color(0xFF15202E),
+                                        size: 20,
+                                      ),
+                                    ),
+                                    itemBuilder: (context) => [
+                                      const PopupMenuItem(
+                                        value: 'delete',
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.delete_outline,
+                                              size: 20,
+                                              color: Colors.red,
+                                            ),
+                                            SizedBox(width: 12),
+                                            Text(
+                                              'Excluir',
+                                              style: TextStyle(
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+              ],
             );
           },
         ),

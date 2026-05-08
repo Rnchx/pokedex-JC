@@ -4,154 +4,180 @@
 [![Firebase](https://img.shields.io/badge/Firebase-Cloud%20Firestore-orange.svg)](https://firebase.google.com)
 [![Dart](https://img.shields.io/badge/Dart-3.0+-teal.svg)](https://dart.dev)
 
-## 📱 Sobre o Projeto
+---
 
-A **Pokédex JC** é um aplicativo mobile/web desenvolvido em **Flutter** que permite gerenciar uma coleção personalizada de Pokémon. O aplicativo permite adicionar, visualizar e remover Pokémon com sincronização em tempo real com o Firebase.
+# 📱 Sobre o Projeto
 
-## 🎯 Funcionalidades
+A **Pokédex JC** é um aplicativo mobile/web desenvolvido em **Flutter** com integração ao **Firebase Firestore**, permitindo criar e gerenciar uma coleção personalizada de Pokémon.
 
-- ✅ Listagem de Pokémon cadastrados
-- ✅ Adicionar novos Pokémon (nome, nível, tipo, moves)
-- ✅ Visualizar detalhes de cada Pokémon
+O projeto foi desenvolvido com foco em:
+
+- Interface moderna
+- Experiência visual inspirada em Pokédex
+- Sincronização em tempo real
+- Organização de dados no Firebase
+- Aprendizado prático de Flutter + Firebase
+
+---
+
+# ✨ Funcionalidades
+
+## 🐉 Pokémon
+
+- ✅ Listagem dinâmica de Pokémon
+- ✅ Adicionar novos Pokémon
+- ✅ Visualizar detalhes completos
 - ✅ Remover Pokémon da coleção
-- ✅ Sincronização em tempo real com Firebase
-- ✅ Imagens oficiais via PokéAPI
+- ✅ Cards estilizados por tipo
+- ✅ Exibição de sprites oficiais
+- ✅ Níveis personalizados
+- ✅ Tipos com cores e emojis
 
-## 🏗️ Estrutura do Projeto
+---
+
+## 👤 Perfil do Treinador
+
+- ✅ Tela de perfil do treinador
+- ✅ Escolha de avatar
+- ✅ Nome personalizado
+- ✅ Card do treinador na Home
+- ✅ Salvamento no Firebase
+
+---
+
+## 🔥 Firebase
+
+- ✅ Cloud Firestore
+- ✅ Sincronização em tempo real
+- ✅ CRUD completo
+- ✅ Estrutura organizada por coleções
+
+---
+
+# 🏗️ Estrutura do Projeto
+
+```text
 📁 lib/
-├── main.dart # Ponto de entrada
-├── home_screen.dart # Tela principal (listagem)
-├── pokemon_screen.dart # Tela de detalhes
-├── pokemon.dart # Modelo Pokémon
-└── firebase_options.dart # Configuração Firebase
+├── main.dart
+├── home_screen.dart
+├── pokemon_screen.dart
+├── new_pokemon_screen.dart
+├── trainer_profile_screen.dart
+├── pokemon.dart
+└── firebase_options.dart
+```
 
-text
+# 🚀 Como Executar
 
-## 🚀 Como Executar
+📋 Pré-requisitos
+Flutter SDK 3.0+
+Dart SDK
+Android Studio / VSCode
+Chrome ou Emulador Android
 
-### Pré-requisitos
+## ⚙️ Instalação
 
-- Flutter SDK (3.0+)
-- Dart SDK
-- Dispositivo/emulador ou navegador
-
-### Passo a Passo
-
-```bash
-# 1. Clone o repositório
+# Clone o repositório
 git clone https://github.com/Rnchx/pokedex-JC.git
 
-# 2. Entre no diretório
+# Entre na pasta
 cd pokedex-JC
 
-# 3. Baixe as dependências
+# Instale as dependências
 flutter pub get
 
-# 4. Execute o projeto
-flutter run
-
-# Para rodar na web:
+# ▶️ Executando o Projeto
+Web
 flutter run -d chrome
-
-# Para rodar no Android:
+Android
 flutter run -d android
-Configuração do Firebase
-O projeto já está configurado para a Web. Para dispositivos móveis:
+Desktop
+flutter run -d windows
+🔥 Configuração do Firebase
 
-Crie um projeto no Firebase Console
+O projeto já possui configuração Firebase para Web.
 
-Adicione um aplicativo Android/iOS
+Para Android/iOS:
 
-Baixe o arquivo de configuração
+# 1️⃣ Crie um projeto no Firebase
 
-Coloque na pasta android/app/ ou ios/Runner/
+Acesse:
 
-Execute flutterfire configure
+https://console.firebase.google.com/
 
-📦 Dependências
-yaml
+# 2️⃣ Ative o Cloud Firestore
+Vá em Firestore Database
+Clique em “Criar banco”
+Escolha modo de teste
+# 3️⃣ Configure o FlutterFire
+dart pub global activate flutterfire_cli
+
+Depois:
+
+flutterfire configure
+
+📦 Dependências Principais
 dependencies:
   flutter:
     sdk: flutter
+
   firebase_core: ^2.24.2
   cloud_firestore: ^4.14.0
+
 🎨 Design System
-Cores
+🎨 Paleta de Cores
 Cor	Código	Uso
-Azul Escuro	#15202E	AppBar, botões
-Azul Médio	#1E3957	Detalhes
+Azul Escuro	#15202E	Botões/AppBar
+Azul Médio	#1E3957	Destaques
 Azul Claro	#87A9C4	Background
-Branco	#FFFFFF	Cards, formulários
-Temas
+Branco	#FFFFFF	Cards
+
+🧩 Estilo Visual
 Material 3
-
-Cards com sombra
-
+Cards arredondados
+Sombras suaves
 Gradientes
+Layout responsivo
+Interface inspirada em Pokédex
 
 🗄️ Banco de Dados (Firestore)
-Estrutura da Coleção pokemons
-json
+
+📁 Coleção: pokemons
 {
   "name": "Charizard",
-  "spriteId": 6,
-  "typeIds": [10, 3],
-  "level": 36,
-  "moves": ["Flamethrower", "Fly", "Dragon Claw", "Earthquake"]
+  "spriteUrl": "https://...",
+  "types": ["Fire", "Flying"],
+  "level": 36
 }
-Tipos de Pokémon
-Tipo	ID	Cor	Emoji
-Normal	1	#A8A77A	⚪
-Fire	10	#EE8130	🔥
-Water	11	#6390F0	💧
-Grass	12	#7AC74C	🌿
-Electric	13	#F7D02C	⚡
-Fairy	18	#D685AD	✨
-📸 Capturas de Tela
-<div align="center"> <img src="screenshots/home.jpg" width="250" alt="Tela Principal"> <img src="screenshots/add.jpg" width="250" alt="Adicionar Pokémon"> <img src="screenshots/details.jpg" width="250" alt="Detalhes"> </div>
-Adicione suas capturas de tela na pasta screenshots/
 
-🔮 Melhorias Futuras
-Editar Pokémon existentes
+📁 Coleção: config
+Documento: treinador
+{
+  "name": "João",
+  "avatarIndex": 2
+}
 
-Filtrar por tipo
+# ⚡ Tipos de Pokémon
+Tipo	Emoji	Cor
+Normal	⚪	#A8A77A
+Fire	🔥	#EE8130
+Water	💧	#6390F0
+Grass	🌿	#7AC74C
+Electric	⚡	#F7D02C
+Fairy	✨	#D685AD
 
-Buscar por nome
+# 📸 Capturas de Tela
+📁 screenshots/
+├── home.png
+├── details.png
+├── add.png
+└── trainer.png
 
-Sistema de evolução
+Você pode adicionar imagens do projeto na pasta screenshots/.
 
-Comparar Pokémon
 
-Suporte para Android e iOS
 
-Autenticação de usuários
 
-👨‍💻 Desenvolvedor
-Nome	Papel
-João Pedro (Rnchx)	Desenvolvedor Full Stack
-📚 Aprendizados
-Flutter - Widgets, navegação, estados
-
-Firebase - Cloud Firestore, CRUD em tempo real
-
-Integração de APIs - PokéAPI
-
-Design System - Temas, Material 3
-
-Arquitetura - Separação de concerns
-
-📄 Licença
-Projeto desenvolvido para fins educacionais e de portfólio.
-
-⭐ Como Contribuir
-Fork o projeto
-
-Crie uma branch (git checkout -b feature/nova-feature)
-
-Commit (git commit -m 'Adiciona nova feature')
-
-Push (git push origin feature/nova-feature)
-
-Abra um Pull Request
-
-Desenvolvido com Flutter e muita paixão por Pokémon ⚡🐾
+# 👨‍💻 Desenvolvedor
+Nome	Função
+João Pedro Rocha (Rnchx)	Desenvolvedor Full Stack

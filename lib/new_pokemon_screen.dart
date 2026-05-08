@@ -1,296 +1,254 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'pokemon_service.dart';
 
 class NewPokemonScreen extends StatefulWidget {
-  final Map<String, dynamic>? pokemonToEdit;
-  final String? docId;
-
-  const NewPokemonScreen({super.key, this.pokemonToEdit, this.docId});
+  const NewPokemonScreen({super.key});
 
   @override
   State<NewPokemonScreen> createState() => _NewPokemonScreenState();
 }
 
 class _NewPokemonScreenState extends State<NewPokemonScreen> {
-  final List<Map<String, dynamic>> tipos = [
-    {'id': 1, 'nome': 'Normal', 'cor': const Color(0xFFA8A77A), 'emoji': '⚪'},
-    {'id': 10, 'nome': 'Fire', 'cor': const Color(0xFFEE8130), 'emoji': '🔥'},
-    {'id': 11, 'nome': 'Water', 'cor': const Color(0xFF6390F0), 'emoji': '💧'},
-    {'id': 12, 'nome': 'Grass', 'cor': const Color(0xFF7AC74C), 'emoji': '🌿'},
-    {'id': 13, 'nome': 'Electric', 'cor': const Color(0xFFF7D02C), 'emoji': '⚡'},
-    {'id': 18, 'nome': 'Fairy', 'cor': const Color(0xFFD685AD), 'emoji': '✨'},
-  ];
+  late Future<List<String>> _searchFuture;
 
-  late TextEditingController nameController;
-  late TextEditingController spriteController;
-  late TextEditingController levelController;
-  late TextEditingController movesController;
-  late int? tipoSelecionado;
+  final _queryController = TextEditingController();
+
+  Map<String, dynamic>? _selected;
+
+  bool _loadingDetails = false;
+
+  final _levelController = TextEditingController();
+
+  final _formKey = GlobalKey<FormState>();
 
   final collection = FirebaseFirestore.instance.collection('pokemons');
 
   @override
   void initState() {
     super.initState();
-    
-    if (widget.pokemonToEdit != null) {
-      nameController = TextEditingController(text: widget.pokemonToEdit!['name']);
-      spriteController = TextEditingController(text: widget.pokemonToEdit!['spriteId'].toString());
-      levelController = TextEditingController(text: widget.pokemonToEdit!['level'].toString());
-      tipoSelecionado = widget.pokemonToEdit!['typeIds'][0];
-      movesController = TextEditingController(
-        text: (widget.pokemonToEdit!['moves'] as List).join(', '),
-      );
-    } else {
-      nameController = TextEditingController();
-      spriteController = TextEditingController();
-      levelController = TextEditingController();
-      movesController = TextEditingController();
-      tipoSelecionado = null;
-    }
+
+    _searchFuture = PokemonService.fetchPokemonNames();
   }
 
   @override
   void dispose() {
-    nameController.dispose();
-    spriteController.dispose();
-    levelController.dispose();
-    movesController.dispose();
+    _queryController.dispose();
+    _levelController.dispose();
     super.dispose();
   }
 
-  Future<void> _salvarPokemon() async {
-    if (nameController.text.isEmpty ||
-        spriteController.text.isEmpty ||
-        levelController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor, preencha todos os campos!'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
+  void _buscar() {
+    final query = _queryController.text.trim();
 
-    final moves = movesController.text
-        .split(',')
-        .map((e) => e.trim())
-        .where((e) => e.isNotEmpty)
-        .toList();
+    setState(() {
+      if (query.isEmpty) {
+        _searchFuture = PokemonService.fetchPokemonNames();
+      } else {
+        _searchFuture = PokemonService.fetchPokemonByName(query);
+      }
+    });
+  }
 
-    final pokemonData = {
-      'name': nameController.text,
-      'spriteId': int.parse(spriteController.text),
-      'level': int.parse(levelController.text),
-      'typeIds': [tipoSelecionado ?? 1],
-      'moves': moves,
-    };
+  Future<void> _selectPokemon(String name) async {
+    setState(() {
+      _loadingDetails = true;
+    });
 
     try {
-      if (widget.pokemonToEdit != null && widget.docId != null) {
-        await collection.doc(widget.docId).update(pokemonData);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Pokémon atualizado com sucesso!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      } else {
-        await collection.add(pokemonData);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Pokémon adicionado com sucesso!'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      }
-      
-      if (mounted) {
-        Navigator.pop(context, true);
-      }
+      final data = await PokemonService.fetchPokemonDetails(name);
+
+      setState(() {
+        _selected = data;
+      });
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao salvar: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    } finally {
+      setState(() {
+        _loadingDetails = false;
+      });
+    }
+  }
+
+  Future<void> _salvar() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    await collection.add({
+      'name': _selected!['name'],
+      'spriteUrl': _selected!['spriteUrl'],
+      'types': _selected!['types'],
+      'level': int.parse(_levelController.text),
+    });
+
+    if (mounted) {
+      Navigator.pop(context, true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isEditing = widget.pokemonToEdit != null;
-    
     return Scaffold(
       backgroundColor: const Color(0xFF87A9C4),
       appBar: AppBar(
-        title: Text(
-          isEditing ? 'Editar Pokémon' : 'Novo Pokémon',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        title: const Text(
+          'Novo Pokémon',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: const Color(0xFF15202E),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Colors.white, Color(0xFF87A9C4)],
-              ),
-              borderRadius: BorderRadius.circular(32),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF15202E).withOpacity(0.2),
-                  spreadRadius: 2,
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
+      body: _selected == null ? _buildList() : _buildForm(),
+    );
+  }
+
+  Widget _buildList() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _queryController,
+                  decoration: const InputDecoration(hintText: 'Buscar Pokémon'),
                 ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.pets,
-                    size: 64,
-                    color: Color(0xFF15202E),
-                  ),
-                  const SizedBox(height: 20),
-                  
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nome do Pokémon',
-                      prefixIcon: Icon(Icons.abc, color: Color(0xFF1E3957)),
-                      hintText: 'Ex: Pikachu',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  TextField(
-                    controller: spriteController,
-                    decoration: const InputDecoration(
-                      labelText: 'Sprite ID',
-                      prefixIcon: Icon(Icons.image, color: Color(0xFF1E3957)),
-                      hintText: 'Ex: 25 (para Pikachu)',
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  TextField(
-                    controller: levelController,
-                    decoration: const InputDecoration(
-                      labelText: 'Level',
-                      prefixIcon: Icon(Icons.arrow_upward, color: Color(0xFF1E3957)),
-                      hintText: '1 a 100',
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  DropdownButtonFormField<int>(
-                    decoration: const InputDecoration(
-                      labelText: 'Tipo Principal',
-                      prefixIcon: Icon(Icons.category, color: Color(0xFF1E3957)),
-                    ),
-                    value: tipoSelecionado,
-                    items: tipos.map((tipo) {
-                      return DropdownMenuItem<int>(
-                        value: tipo['id'],
-                        child: Row(
-                          children: [
-                            Text(
-                              tipo['emoji'],
-                              style: const TextStyle(fontSize: 18),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              tipo['nome'],
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: tipo['cor'],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        tipoSelecionado = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  TextField(
-                    controller: movesController,
-                    decoration: const InputDecoration(
-                      labelText: 'Golpes',
-                      prefixIcon: Icon(Icons.sports_mma, color: Color(0xFF1E3957)),
-                      hintText: 'Ex: Thunderbolt, Quick Attack, Iron Tail',
-                      helperText: 'Separe os golpes por vírgula',
-                    ),
-                    maxLines: 3,
-                  ),
-                  const SizedBox(height: 32),
-                  
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF15202E),
-                            side: const BorderSide(color: Color(0xFF15202E), width: 2),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancelar'),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF15202E),
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          onPressed: _salvarPokemon,
-                          child: Text(
-                            isEditing ? 'Atualizar' : 'Salvar',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
               ),
+              const SizedBox(width: 12),
+              ElevatedButton(onPressed: _buscar, child: const Text('Buscar')),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          Expanded(
+            child: FutureBuilder<List<String>>(
+              future: _searchFuture,
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Center(child: Text('${snapshot.error}'));
+                }
+
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final names = snapshot.data!;
+
+                return ListView.builder(
+                  itemCount: names.length,
+                  itemBuilder: (context, index) {
+                    final name = names[index];
+
+                    return Card(
+                      child: ListTile(
+                        title: Text(name),
+                        trailing: const Icon(Icons.catching_pokemon),
+                        onTap: () => _selectPokemon(name),
+                      ),
+                    );
+                  },
+                );
+              },
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildForm() {
+    if (_loadingDetails) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(24),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    Image.network(
+                      _selected!['spriteUrl'],
+                      width: 140,
+                      height: 140,
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Text(
+                      _selected!['name'],
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    Wrap(
+                      spacing: 8,
+                      children: (_selected!['types'] as List<dynamic>)
+                          .map((t) => Chip(label: Text(t as String)))
+                          .toList(),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          _selected = null;
+                        });
+                      },
+                      child: const Text('Trocar'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            TextFormField(
+              controller: _levelController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(labelText: 'Nível'),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Digite um nível';
+                }
+
+                final level = int.tryParse(value);
+
+                if (level == null || level < 1 || level > 100) {
+                  return 'Nível deve ser entre 1 e 100';
+                }
+
+                return null;
+              },
+            ),
+
+            const SizedBox(height: 24),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _salvar,
+                child: const Text('Cadastrar'),
+              ),
+            ),
+          ],
         ),
       ),
     );
