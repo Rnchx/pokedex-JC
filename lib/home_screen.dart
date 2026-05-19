@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'pokemon.dart';
 import 'pokemon_screen.dart';
 import 'new_pokemon_screen.dart';
@@ -85,15 +86,28 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF87A9C4),
       appBar: AppBar(
-        title: const Text(
-          'Pokédex JC',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        // Título com e-mail do usuário logado
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text(
+              'Pokédex JC',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            Text(
+              FirebaseAuth.instance.currentUser?.email ?? '',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.normal,
+                color: Colors.white70,
+              ),
+            ),
+          ],
         ),
-
         actions: [
+          // Perfil do treinador
           IconButton(
             icon: const Icon(Icons.person),
-
             onPressed: () {
               Navigator.push(
                 context,
@@ -103,8 +117,13 @@ class _HomeScreenState extends State<HomeScreen> {
               });
             },
           ),
+          // Botão de logout
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sair',
+            onPressed: () => FirebaseAuth.instance.signOut(),
+          ),
         ],
-
         elevation: 0,
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -123,7 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 64, color: Colors.white70),
+                    const Icon(Icons.error_outline,
+                        size: 64, color: Colors.white70),
                     const SizedBox(height: 16),
                     Text(
                       'Erro: ${snapshot.error}',
@@ -137,7 +157,8 @@ class _HomeScreenState extends State<HomeScreen> {
             if (!snapshot.hasData) {
               return const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF15202E)),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(Color(0xFF15202E)),
                 ),
               );
             }
@@ -149,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.pets, size: 64, color: Colors.white70),
+                    const Icon(Icons.pets, size: 64, color: Colors.white70),
                     const SizedBox(height: 16),
                     const Text(
                       'Nenhum Pokémon cadastrado',
@@ -175,7 +196,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       .collection('config')
                       .doc('treinador')
                       .get(),
-
                   builder: (context, profileSnapshot) {
                     if (!profileSnapshot.hasData ||
                         !profileSnapshot.data!.exists) {
@@ -184,21 +204,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     final data =
                         profileSnapshot.data!.data() as Map<String, dynamic>;
-
                     final nome = data['name'] ?? 'Treinador';
                     final avatar = data['avatarIndex'] ?? 0;
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 20),
                       padding: const EdgeInsets.all(16),
-
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
                           colors: [Colors.white, Color(0xFF87A9C4)],
                         ),
-
                         borderRadius: BorderRadius.circular(24),
-
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.1),
@@ -206,24 +222,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ],
                       ),
-
                       child: Row(
                         children: [
                           CircleAvatar(
                             radius: 35,
                             backgroundColor: Colors.white,
-
                             child: Image.asset(
                               'assets/trainers/trainer_${avatar + 1}.png',
                             ),
                           ),
-
                           const SizedBox(width: 16),
-
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
-
                               children: [
                                 const Text(
                                   'Treinador',
@@ -232,7 +243,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: Colors.grey,
                                   ),
                                 ),
-
                                 Text(
                                   nome,
                                   style: const TextStyle(
@@ -249,7 +259,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                 ),
-
                 Expanded(
                   child: ListView.builder(
                     itemCount: docs.length,
@@ -288,9 +297,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 borderRadius: BorderRadius.circular(24),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(
-                                      0xFF15202E,
-                                    ).withOpacity(0.2),
+                                    color: const Color(0xFF15202E)
+                                        .withOpacity(0.2),
                                     spreadRadius: 2,
                                     blurRadius: 8,
                                     offset: const Offset(0, 4),
@@ -302,11 +310,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Container(
                                     width: 100,
                                     height: 100,
-                                    decoration: BoxDecoration(
-                                      color: const Color(
-                                        0xFF15202E,
-                                      ), // VOLTOU PARA AZUL MARINHO
-                                      borderRadius: const BorderRadius.only(
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF15202E),
+                                      borderRadius: BorderRadius.only(
                                         topLeft: Radius.circular(24),
                                         bottomLeft: Radius.circular(24),
                                       ),
@@ -321,18 +327,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                         fit: BoxFit.cover,
                                         errorBuilder:
                                             (context, error, stackTrace) {
-                                              return const Center(
-                                                child: Icon(
-                                                  Icons.catching_pokemon,
-                                                  size: 40,
-                                                  color: Colors.white70,
-                                                ),
-                                              );
-                                            },
+                                          return const Center(
+                                            child: Icon(
+                                              Icons.catching_pokemon,
+                                              size: 40,
+                                              color: Colors.white70,
+                                            ),
+                                          );
+                                        },
                                       ),
                                     ),
                                   ),
-                                  // Informações
                                   Expanded(
                                     child: Padding(
                                       padding: const EdgeInsets.all(16),
@@ -354,23 +359,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                               Container(
                                                 padding:
                                                     const EdgeInsets.symmetric(
-                                                      horizontal: 8,
-                                                      vertical: 2,
-                                                    ),
+                                                  horizontal: 8,
+                                                  vertical: 2,
+                                                ),
                                                 decoration: BoxDecoration(
-                                                  color: const Color(
-                                                    0xFF15202E,
-                                                  ).withOpacity(0.1),
+                                                  color: const Color(0xFF15202E)
+                                                      .withOpacity(0.1),
                                                   borderRadius:
                                                       BorderRadius.circular(12),
                                                 ),
                                                 child: Text(
                                                   'Nível ${pokemon.level}',
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                     fontSize: 12,
-                                                    color: const Color(
-                                                      0xFF15202E,
-                                                    ),
+                                                    color: Color(0xFF15202E),
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
@@ -378,9 +380,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                               const SizedBox(width: 8),
                                               ...pokemon.types.map((tipo) {
                                                 String emoji = '';
-                                                Color tipoCor = const Color(
-                                                  0xFFA8A77A,
-                                                );
+                                                Color tipoCor =
+                                                    const Color(0xFFA8A77A);
                                                 for (var t in tipos) {
                                                   if (t['nome'] == tipo) {
                                                     emoji = t['emoji'];
@@ -390,21 +391,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 }
                                                 return Container(
                                                   margin: const EdgeInsets.only(
-                                                    right: 4,
-                                                  ),
+                                                      right: 4),
                                                   padding:
                                                       const EdgeInsets.symmetric(
-                                                        horizontal: 6,
-                                                        vertical: 2,
-                                                      ),
+                                                    horizontal: 6,
+                                                    vertical: 2,
+                                                  ),
                                                   decoration: BoxDecoration(
-                                                    color: tipoCor.withOpacity(
-                                                      0.2,
-                                                    ),
+                                                    color: tipoCor
+                                                        .withOpacity(0.2),
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                          8,
-                                                        ),
+                                                            8),
                                                   ),
                                                   child: Row(
                                                     mainAxisSize:
@@ -413,8 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       Text(
                                                         emoji,
                                                         style: const TextStyle(
-                                                          fontSize: 10,
-                                                        ),
+                                                            fontSize: 10),
                                                       ),
                                                       const SizedBox(width: 2),
                                                       Text(
@@ -436,14 +433,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     ),
                                   ),
-                                  // Menu de opções (Editar e Deletar)
                                   PopupMenuButton<String>(
                                     icon: Container(
                                       padding: const EdgeInsets.all(8),
                                       decoration: BoxDecoration(
-                                        color: const Color(
-                                          0xFF15202E,
-                                        ).withOpacity(0.1),
+                                        color: const Color(0xFF15202E)
+                                            .withOpacity(0.1),
                                         shape: BoxShape.circle,
                                       ),
                                       child: const Icon(
@@ -457,22 +452,23 @@ class _HomeScreenState extends State<HomeScreen> {
                                         value: 'delete',
                                         child: Row(
                                           children: [
-                                            Icon(
-                                              Icons.delete_outline,
-                                              size: 20,
-                                              color: Colors.red,
-                                            ),
+                                            Icon(Icons.delete_outline,
+                                                size: 20, color: Colors.red),
                                             SizedBox(width: 12),
                                             Text(
                                               'Excluir',
-                                              style: TextStyle(
-                                                color: Colors.red,
-                                              ),
+                                              style:
+                                                  TextStyle(color: Colors.red),
                                             ),
                                           ],
                                         ),
                                       ),
                                     ],
+                                    onSelected: (value) {
+                                      if (value == 'delete') {
+                                        _deletarPokemon(docId, pokemon.name);
+                                      }
+                                    },
                                   ),
                                   const SizedBox(width: 8),
                                 ],
