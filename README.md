@@ -178,6 +178,7 @@ Você pode adicionar imagens do projeto na pasta screenshots/.
 
 
 
-# 👨‍💻 Desenvolvedor
+# 👨‍💻 Desenvolvedores
 Nome	Função
-João Pedro Rocha (Rnchx)	Desenvolvedor Full Stack
+João Pedro Rocha Desenvolvedor Full Stack
+Caio Cantarin Desenvolvedor Full Stack
