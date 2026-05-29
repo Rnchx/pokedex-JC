@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'pokemon.dart';
+import 'package:provider/provider.dart';
+import 'battle_provider.dart';
 
 class PokemonScreen extends StatefulWidget {
   final Pokemon pokemon;
@@ -142,7 +144,12 @@ class _PokemonScreenState extends State<PokemonScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ChangeNotifierProvider(
+      create: (_) => BattleProvider(
+        pokemonName: pokemon.name,
+        level: pokemon.level,
+      ),
+      child: Scaffold(
       backgroundColor: const Color(0xFF87A9C4),
       appBar: AppBar(
         title: Text(
@@ -372,8 +379,9 @@ class _PokemonScreenState extends State<PokemonScreen>
                 ),
               ),
 
-              const SizedBox(height: 24),
-            ],
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         ),
       ),
